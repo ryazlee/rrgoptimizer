@@ -9,13 +9,33 @@ class wrestler:
         self.weight = weight;
 
     def __str__(self):
-        return self.fname + " " + self.lname + " " + str(weight);
+        return self.fname + " " + self.lname + " " + str(self.weight);
 
 # Helper Methods
 
 
 # Optimization Methods
 
+def createGroupsBySize(wrestlers, n):
+    ret = [];
+    temp = [];
+    count = 0;
+    for wrestler in wrestlers:
+        if count == n-1:
+            temp.append(wrestler);
+            ret.append(temp);
+            temp = [];
+            count = 0;
+        else:
+            temp.append(wrestler);
+            count += 1;
+    ret.append(temp);
+    return ret;        
+
+def sortByWeight(wrestlers):
+    wrestlers.sort(key=lambda x: x.weight, reverse=False);
+    sortedArr = sorted(wrestlers, key=lambda x: x.weight, reverse=False);
+    return sortedArr;
 
 # Executable Code
 
@@ -40,4 +60,13 @@ bracketsize = 8;
 bracketallowance = 0.05;
 bracketsmallmax = 4;
 
+ryan = wrestler("ryan", "lee", 126);
+nicole = wrestler("nicole", "lee", 106);
+melissa = wrestler("melissa", "lee", 226);
+derek = wrestler("derek", "lee", 321);
+maddie = wrestler("maddie", "lee", 26);
+a = wrestler("a", "ld", 136);
+b = wrestler("b", "lee", 126);
+c = wrestler("c", "adf", 413);
 
+wrestlers = [ryan, nicole, melissa, derek, maddie, a, b, c]
