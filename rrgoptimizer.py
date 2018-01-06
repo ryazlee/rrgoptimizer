@@ -1,6 +1,7 @@
 # Wrestler Class
 
 import sys
+from random import *
 
 class wrestler:
     def __init__(self, fname, lname, weight):
@@ -13,6 +14,14 @@ class wrestler:
 
 # Helper Methods
 
+def printGroups(groups):
+    count = 0;
+    for group in groups:
+        count += 1;
+        groupMaxWeight = group[len(group) - 1];
+        print("Group " + str(count) + " Max weight: " + str(groupMaxWeight.weight));
+        for wrestler in group:
+            print("\t" + str(wrestler));
 
 # Optimization Methods
 
@@ -29,7 +38,8 @@ def createGroupsBySize(wrestlers, n):
         else:
             temp.append(wrestler);
             count += 1;
-    ret.append(temp);
+    if temp != []:
+        ret.append(temp);
     return ret;        
 
 def sortByWeight(wrestlers):
@@ -70,3 +80,9 @@ b = wrestler("b", "lee", 126);
 c = wrestler("c", "adf", 413);
 
 wrestlers = [ryan, nicole, melissa, derek, maddie, a, b, c]
+
+for x in range(0, 40):
+    r = randint(1,100);
+    w = wrestler("FN: " + str(r), "LN", r);
+    wrestlers.append(w);
+
