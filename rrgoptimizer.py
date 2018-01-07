@@ -14,16 +14,67 @@ class wrestler:
 
 # Helper Methods
 
-def printGroups(groups):
+def printGroups(groups, allowance):
     count = 0;
     for group in groups:
         count += 1;
-        groupMaxWeight = group[len(group) - 1];
-        print("Group " + str(count) + " Max weight: " + str(groupMaxWeight.weight));
+        groupMinWeight = getMinWeight(group)* (1+allowance);
+        print("Group " + str(count) + " Max weight: " + str(groupMinWeight));
         for wrestler in group:
             print("\t" + str(wrestler));
 
+def getMaxWeight(group):
+    max = group[0].weight;
+    for wrestler in group:
+        if wrestler.weight > max:
+            max = wrestler.weight;
+    return max;
+
+def getMinWeight(group):
+    min = group[0].weight;
+    for wrestler in group:
+        if wrestler.weight <  min:
+            min = wrestler.weight;
+    return min;
+
+def sortByWeight(wrestlers):
+    wrestlers.sort(key=lambda x: x.weight, reverse=False);
+    sortedArr = sorted(wrestlers, key=lambda x: x.weight, reverse=False);
+    return sortedArr;
+
+def sortGroupsByWeight(groups):
+    groups.sort(key=lambda x: getMaxWeight(x), reverse=False);
+    sortedArr = sorted(groups, key=lambda x: getMaxWeight(x), reverse=False);
+    return sortedArr;
+
+def printStats(groups):
+    stats = {};
+    for group in groups:
+        if stats[len(group)] == None:
+            stats[len(group)] = 1;
+        else:
+            stats[len(group)] += 1;
+    for i in stats:
+        print(str(i) + ": " + str(stat[i]));
+
 # Optimization Methods
+
+def optimizeByWeightAllowance(wrestlers, n, allowance):
+    groups = [];
+    for start in range(0, len(wrestlers)):
+        maxweight = wrestlers[start].weight*(1+allowance);
+        count = 0;
+        group = [];
+        for end in range(start, len(wrestlers)):
+            if wrestlers[end].weight < maxweight and count < n:
+                count += 1;
+                group.append(wrestlers[end]);
+            elif count == n or wrestlers[end].weight >=  maxweight:
+                start = end + 1;
+                break;
+        groups.append(group);    
+    groups.remove(groups[len(groups)-1]);
+    return groups;
 
 def createGroupsBySize(wrestlers, n):
     ret = [];
@@ -41,11 +92,6 @@ def createGroupsBySize(wrestlers, n):
     if temp != []:
         ret.append(temp);
     return ret;        
-
-def sortByWeight(wrestlers):
-    wrestlers.sort(key=lambda x: x.weight, reverse=False);
-    sortedArr = sorted(wrestlers, key=lambda x: x.weight, reverse=False);
-    return sortedArr;
 
 # Executable Code
 
@@ -66,23 +112,19 @@ bracketsmallmax = sys.argv[3]];
 '''
 
 brackettype = "BR";
-bracketsize = 8;
+bracketsize = 7;
 bracketallowance = 0.05;
 bracketsmallmax = 4;
 
-ryan = wrestler("ryan", "lee", 126);
-nicole = wrestler("nicole", "lee", 106);
-melissa = wrestler("melissa", "lee", 226);
-derek = wrestler("derek", "lee", 321);
-maddie = wrestler("maddie", "lee", 26);
-a = wrestler("a", "ld", 136);
-b = wrestler("b", "lee", 126);
-c = wrestler("c", "adf", 413);
+wrestlers = [];
 
-wrestlers = [ryan, nicole, melissa, derek, maddie, a, b, c]
-
-for x in range(0, 40):
-    r = randint(1,100);
+for x in range(0, 80):
+    r = randint(100,200);
     w = wrestler("FN: " + str(r), "LN", r);
     wrestlers.append(w);
 
+wrestlers = sortByWeight(wrestlers);
+groups = createGroupsBySize(wrestlers, bracketsize);
+printGroups(groups, bracketallowance);
+op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
+printGroups(op, bracketallowance);
