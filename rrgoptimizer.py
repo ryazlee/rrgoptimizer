@@ -102,9 +102,9 @@ def createGroupsBySize(wrestlers, n):
 
 def makeAdjustments(groups, txt):
     lines = txt.split(",");
-    for line in lines:
+    for line in lines[:len(lines)-1]:
         commands = line.split(":");
-        if commands[2] == "STOP":
+        if commands[2] == "START":
             newgroup = [];
             keepgroup = [];
             groupindex = 0;
@@ -123,7 +123,25 @@ def makeAdjustments(groups, txt):
                 groups.append(newgroup);
                 groups.append(keepgroup);
                 groups.remove(removegroup);
-    groups = sortGroupsByWeight(groups);
+            groups = sortGroupsByWeight(groups);
+        if commands[2] == "SWAP":
+            groupindex = 0; 
+            group1 = 0;
+            wrestler1 = 0;
+            group2 = 0;
+            wrestler2 = 0;
+            for group in groups:
+                wrestlerindex = 0;
+                for wrestler in group:
+                    if wrestler.id == commands[0]:
+                        group1 = groupindex;
+                        wrestler1 = wrestlerindex;
+                    if wrestler.id == commands[1]:
+                        group2 = groupindex;
+                        wrestler2 = wrestlerindex;
+                    wrestlerindex += 1;
+                groupindex += 1;
+            groups[group2][wrestler2], groups[group1][wrestler1] = groups[group1][wrestler1], groups[group2][wrestler2]
     return groups;
 
 # Executable Code
@@ -150,6 +168,7 @@ bracketallowance = 0.02;
 bracketsmallmax = 4;
 file = open("adjustments.ovr", "r");
 bracketadj = file.read();
+bracketadj = bracketadj.replace("\n", "");
 wrestlers = [];
 
 for x in range(0, 6):
