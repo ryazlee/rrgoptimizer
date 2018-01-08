@@ -58,7 +58,7 @@ def printStats(groups):
     for i in range(0, len(stats)):
         if stats[i] != 0:
             percent = stats[i]/len(groups)* 100;
-            print(str(i) + ": " + str(stats[i]) + " " + str(round(percent, 2)) + "%");
+            print("Size " + str(i) + ": " + str(stats[i]) + " " + str(round(percent, 2)) + "%");
 
 # Optimization Methods
 
@@ -106,22 +106,24 @@ def makeAdjustments(groups, txt):
         commands = line.split(":");
         if commands[2] == "STOP":
             newgroup = [];
+            keepgroup = [];
+            groupindex = 0;
+            removegroup = None;
             for group in groups:
                 cancontinue = False;
+                index = 0;
+                groupindex += 1;
                 for wrestler in group:
-                    if wrestler.id == commands[0]:
-                        print("found!");
-                        cancontinue = True;
-                        newgroup.append(wrestler);
-                        #group.remove(wrestler);
-                        print("removing " + str(wrestler));
-                    elif cancontinue == True:
-                        print("removing " + str(wrestler));
-                        newgroup.append(wrestler);
-                        #group.remove(wrestler);
-                for i in newgroup: print(str(i));
-            for i in newgroup: print("outer" + str(i));
-            groups.append(newgroup);
+                    if wrestler.id == commands[0] and index != 0:
+                        removegroup = group;
+                        keepgroup = group[:index];
+                        newgroup = group[index:];
+                    index += 1;
+            if newgroup != []:
+                groups.append(newgroup);
+                groups.append(keepgroup);
+                groups.remove(removegroup);
+    groups = sortGroupsByWeight(groups);
     return groups;
 
 # Executable Code
@@ -143,13 +145,14 @@ bracketsmallmax = sys.argv[3]];
 '''
 
 brackettype = "BR";
-bracketsize = 5;
+bracketsize = 3;
 bracketallowance = 0.02;
 bracketsmallmax = 4;
-
+file = open("adjustments.ovr", "r");
+bracketadj = file.read();
 wrestlers = [];
 
-for x in range(0, 13):
+for x in range(0, 6):
     r = randint(100,110);
     w = wrestler(str(x) , "FN:" + str(x), "", r);
     wrestlers.append(w);
@@ -158,6 +161,7 @@ wrestlers = sortByWeight(wrestlers);
 #groups = createGroupsBySize(wrestlers, bracketsize);
 op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
 printGroups(op, bracketallowance);
-op = makeAdjustments(op, "1::STOP,122:134:SWAP");
+print("After adjustments......");
+op = makeAdjustments(op, bracketadj);
 printGroups(op, bracketallowance);
 printStats(op);
