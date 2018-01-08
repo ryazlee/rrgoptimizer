@@ -4,13 +4,14 @@ import sys
 from random import *
 
 class wrestler:
-    def __init__(self, fname, lname, weight):
+    def __init__(self, id, fname, lname, weight):
+        self.id = id;
         self.fname = fname;
         self.lname = lname;
         self.weight = weight;
 
     def __str__(self):
-        return self.fname + " " + self.lname + " " + str(self.weight);
+        return "Wrestler " + str(self.id) + ": " + self.fname + " " + self.lname + " " + str(self.weight);
 
 # Helper Methods
 
@@ -31,7 +32,7 @@ def getMaxWeight(group):
     return max;
 
 def getMinWeight(group):
-    min = group[0].weight;
+    min = 10000;
     for wrestler in group:
         if wrestler.weight <  min:
             min = wrestler.weight;
@@ -50,7 +51,7 @@ def sortGroupsByWeight(groups):
 def printStats(groups):
     print("Stats:")
     stats = [];
-    for i in range(0, len(groups)):
+    for i in range(0, 500):
         stats.append(0);
     for group in groups:
         stats[len(group)] += 1;
@@ -99,6 +100,30 @@ def createGroupsBySize(wrestlers, n):
         ret.append(temp);
     return ret;        
 
+def makeAdjustments(groups, txt):
+    lines = txt.split(",");
+    for line in lines:
+        commands = line.split(":");
+        if commands[2] == "STOP":
+            newgroup = [];
+            for group in groups:
+                cancontinue = False;
+                for wrestler in group:
+                    if wrestler.id == commands[0]:
+                        print("found!");
+                        cancontinue = True;
+                        newgroup.append(wrestler);
+                        #group.remove(wrestler);
+                        print("removing " + str(wrestler));
+                    elif cancontinue == True:
+                        print("removing " + str(wrestler));
+                        newgroup.append(wrestler);
+                        #group.remove(wrestler);
+                for i in newgroup: print(str(i));
+            for i in newgroup: print("outer" + str(i));
+            groups.append(newgroup);
+    return groups;
+
 # Executable Code
 
 '''
@@ -118,19 +143,21 @@ bracketsmallmax = sys.argv[3]];
 '''
 
 brackettype = "BR";
-bracketsize = 8;
+bracketsize = 5;
 bracketallowance = 0.02;
 bracketsmallmax = 4;
 
 wrestlers = [];
 
-for x in range(0, 400):
-    r = randint(100,200);
-    w = wrestler("FN:" + str(x), "", r);
+for x in range(0, 13):
+    r = randint(100,110);
+    w = wrestler(str(x) , "FN:" + str(x), "", r);
     wrestlers.append(w);
 
 wrestlers = sortByWeight(wrestlers);
 #groups = createGroupsBySize(wrestlers, bracketsize);
 op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
+printGroups(op, bracketallowance);
+op = makeAdjustments(op, "1::STOP,122:134:SWAP");
 printGroups(op, bracketallowance);
 printStats(op);
