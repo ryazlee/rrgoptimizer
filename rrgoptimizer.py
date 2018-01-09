@@ -154,6 +154,8 @@ def makeAdjustments(groups, txt):
                     wrestlerindex += 1;
                 groupindex += 1;
             groups[group2][wrestler2], groups[group1][wrestler1] = groups[group1][wrestler1], groups[group2][wrestler2]
+    
+    printGroups(groups);
     return groups;
 
 # Executable Code
@@ -174,35 +176,50 @@ bracketallowance = sys.argv[3];
 bracketsmallmax = sys.argv[4]];
 '''
 
-brackettype = "BR";
-bracketsize = 8;
-bracketallowance = float(sys.argv[1]);
-bracketsmallmax = 4;
-file = open("adjustments.ovr", "r");
-bracketadj = file.read();
+tourneyname = sys.argv[1];
+brackettype = "";
+bracketsize = 0;
+bracketallowance = float(sys.argv[2]);
+bracketsmallmax = 0;
+errors = "Errors:";
+bracketadj = "";
+try:
+    cfg = open(tourneyname + ".cfg", "r");
+    config = cfg.read();
+    lines = config.split("\n");
+    for line in range(0,len(lines) -1):
+        param = lines[line].split(":");
+        if param[0] == "brackettype": brackettype = param[1];
+        elif param[0] == "bracketsize": bracketsize = int(param[1]);
+        elif param[0] == "bracketsmallmax": bracketsmallmax = int(param[1]); 
+except:
+    errors += "\ncannot open " + tourneyname + ".cfg";
+
+try:
+    file = open(tourneyname + ".ovr", "r");
+    bracketadj = file.read();
+except:
+    errors += "\ncannot open " + tourneyname + ".ovr";
 wrestlers = [];
-csv = open("delmar2016_nobyes.csv");
-data = csv.read();
-lines = data.split("\n");
-index = 0;
-for line in range(0,len(lines) -1):
-    index += 1;
-    elems = lines[line].split(",");
-    w = wrestler(str(index), elems[0], elems[1], float(elems[2]));
-    wrestlers.append(w);
 
-'''
-for x in range(0, 6):
-    r = randint(100,110);
-    w = wrestler(str(x) , "FN:" + str(x), "", r);
-    wrestlers.append(w);
-'''
+try:
+    csv = open(tourneyname + ".csv");
+    data = csv.read();
+    lines = data.split("\n");
+    index = 0;
+    for line in range(0,len(lines) -1):
+        index += 1;
+        elems = lines[line].split(",");
+        w = wrestler(str(index), elems[0], elems[1], float(elems[2]));
+        wrestlers.append(w);
+    wrestlers = sortByWeight(wrestlers);
+    op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
+    op = makeAdjustments(op, bracketadj);
+    printStats(op);
+except:
+    errors += "\ncannot open " + tourneyname + ".csv";
 
-wrestlers = sortByWeight(wrestlers);
-#print(*wrestlers);
-#groups = createGroupsBySize(wrestlers, bracketsize);
-op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
-#print("After adjustments......");
-op = makeAdjustments(op, bracketadj);
-printGroups(op);
-printStats(op);
+if errors == "Errors:":
+    errors += " None"
+print(brackettype + " " + tourneyname + ": size: " + str(bracketsize) + ", bracketallowance: " + str(bracketallowance *100) + "%, smallest bracket size: " + str(bracketsmallmax));
+print(errors);
