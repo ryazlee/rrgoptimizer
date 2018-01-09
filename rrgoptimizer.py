@@ -163,24 +163,37 @@ bracketsmallmax = sys.argv[3]];
 '''
 
 brackettype = "BR";
-bracketsize = 3;
-bracketallowance = 0.02;
+bracketsize = 8;
+bracketallowance = sys.argv[0];
+bracketallowance = 0.10;
 bracketsmallmax = 4;
 file = open("adjustments.ovr", "r");
 bracketadj = file.read();
 bracketadj = bracketadj.replace("\n", "");
 wrestlers = [];
-
+csv = open("delmar2016_nobyes.csv");
+data = csv.read();
+lines = data.split("\n");
+index = 0;
+for line in range(0,len(lines)):
+    print(lines[line]);
+    index += 1;
+    elems = lines[line].split(",");
+    w = wrestler(str(index), elems[0], elems[1], float(elems[2]));
+    wrestlers.append(w);
+'''
 for x in range(0, 6):
     r = randint(100,110);
     w = wrestler(str(x) , "FN:" + str(x), "", r);
     wrestlers.append(w);
+'''
 
-wrestlers = sortByWeight(wrestlers);
+#wrestlers = sortByWeight(wrestlers);
+#print(*wrestlers);
 #groups = createGroupsBySize(wrestlers, bracketsize);
 op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
 printGroups(op, bracketallowance);
-print("After adjustments......");
+#print("After adjustments......");
 op = makeAdjustments(op, bracketadj);
 printGroups(op, bracketallowance);
 printStats(op);
