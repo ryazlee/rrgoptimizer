@@ -15,12 +15,18 @@ class wrestler:
 
 # Helper Methods
 
-def printGroups(groups, allowance):
+def printGroups(groups):
     count = 0;
     for group in groups:
         count += 1;
-        groupMinWeight = getMinWeight(group)* (1+allowance);
-        print("Group " + str(count) + " Max weight: " + str(groupMinWeight));
+        groupMaxWeight = getMaxWeight(group);
+        #groupMinWeight = getMinWeight(group)* (1+allowance);
+        size = len(group);
+        if size <= 3:
+            size = "********************************************** Group Size of " + str(size);
+        else: size = str(size);
+
+        print("Group " + str(count) + " Max weight: " + str(groupMaxWeight) + "\tSize: " + size);
         for wrestler in group:
             print("\t" + str(wrestler));
 
@@ -51,6 +57,9 @@ def sortGroupsByWeight(groups):
 def printStats(groups):
     print("Stats:")
     stats = [];
+    total = [];
+    for i in range(0, 3):
+        total.append(0);
     for i in range(0, 500):
         stats.append(0);
     for group in groups:
@@ -58,8 +67,11 @@ def printStats(groups):
     for i in range(0, len(stats)):
         if stats[i] != 0:
             percent = stats[i]/len(groups)* 100;
-            print("Size " + str(i) + ": " + str(stats[i]) + " " + str(round(percent, 2)) + "%");
-
+            total[0] += stats[i];
+            total[1] += percent;
+            total[2] += i * stats[i];
+            print("Size " + str(i) + ":\t" + str(stats[i]) + "\t" + str(round(percent, 2)) + "%" + "\tAmount: " + str(i * stats[i]));
+    print(".................\nTotal:\t" + str(total[0]) + "\t" + str(total[1]) + "%\t" + "Amount: " + str(total[2]));
 # Optimization Methods
 
 def optimizeByWeightAllowance(wrestlers, n, allowance):
@@ -101,10 +113,10 @@ def createGroupsBySize(wrestlers, n):
     return ret;        
 
 def makeAdjustments(groups, txt):
-    lines = txt.split(",");
-    for line in lines[:len(lines)-1]:
+    lines = txt.split("\n");
+    for line in lines[1:len(lines)-1]:
         commands = line.split(":");
-        if commands[2] == "START":
+        if "START" in commands[0]:
             newgroup = [];
             keepgroup = [];
             groupindex = 0;
@@ -114,7 +126,7 @@ def makeAdjustments(groups, txt):
                 index = 0;
                 groupindex += 1;
                 for wrestler in group:
-                    if wrestler.id == commands[0] and index != 0:
+                    if wrestler.id == commands[1] and index != 0:
                         removegroup = group;
                         keepgroup = group[:index];
                         newgroup = group[index:];
@@ -124,7 +136,7 @@ def makeAdjustments(groups, txt):
                 groups.append(keepgroup);
                 groups.remove(removegroup);
             groups = sortGroupsByWeight(groups);
-        if commands[2] == "SWAP":
+        if "SWAP" in commands[0]:
             groupindex = 0; 
             group1 = 0;
             wrestler1 = 0;
@@ -133,7 +145,7 @@ def makeAdjustments(groups, txt):
             for group in groups:
                 wrestlerindex = 0;
                 for wrestler in group:
-                    if wrestler.id == commands[0]:
+                    if wrestler.id == commands[2]:
                         group1 = groupindex;
                         wrestler1 = wrestlerindex;
                     if wrestler.id == commands[1]:
@@ -156,31 +168,29 @@ Command Line Inputs:
 
 '''
 Run this when code finishes:
-brackettype = sys.argv[0];
-bracketsize = sys.argv[1];
-bracketallowance = sys.argv[2];
-bracketsmallmax = sys.argv[3]];
+brackettype = sys.argv[1];
+bracketsize = sys.argv[2];
+bracketallowance = sys.argv[3];
+bracketsmallmax = sys.argv[4]];
 '''
 
 brackettype = "BR";
 bracketsize = 8;
-bracketallowance = sys.argv[0];
-bracketallowance = 0.10;
+bracketallowance = float(sys.argv[1]);
 bracketsmallmax = 4;
 file = open("adjustments.ovr", "r");
 bracketadj = file.read();
-bracketadj = bracketadj.replace("\n", "");
 wrestlers = [];
 csv = open("delmar2016_nobyes.csv");
 data = csv.read();
 lines = data.split("\n");
 index = 0;
-for line in range(0,len(lines)):
-    print(lines[line]);
+for line in range(0,len(lines) -1):
     index += 1;
     elems = lines[line].split(",");
     w = wrestler(str(index), elems[0], elems[1], float(elems[2]));
     wrestlers.append(w);
+
 '''
 for x in range(0, 6):
     r = randint(100,110);
@@ -188,12 +198,11 @@ for x in range(0, 6):
     wrestlers.append(w);
 '''
 
-#wrestlers = sortByWeight(wrestlers);
+wrestlers = sortByWeight(wrestlers);
 #print(*wrestlers);
 #groups = createGroupsBySize(wrestlers, bracketsize);
 op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
-printGroups(op, bracketallowance);
 #print("After adjustments......");
 op = makeAdjustments(op, bracketadj);
-printGroups(op, bracketallowance);
+printGroups(op);
 printStats(op);
