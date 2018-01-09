@@ -55,7 +55,7 @@ def sortGroupsByWeight(groups):
     return sortedArr;
 
 def printStats(groups):
-    print("Stats:")
+    print("\nStats:")
     stats = [];
     total = [];
     for i in range(0, 3):
@@ -70,8 +70,8 @@ def printStats(groups):
             total[0] += stats[i];
             total[1] += percent;
             total[2] += i * stats[i];
-            print("Size " + str(i) + ":\t" + str(stats[i]) + "\t" + str(round(percent, 2)) + "%" + "\tAmount: " + str(i * stats[i]));
-    print(".................\nTotal:\t" + str(total[0]) + "\t" + str(total[1]) + "%\t" + "Amount: " + str(total[2]));
+            print("Size " + str(i) + ":\t" + str(stats[i]) + "\t" + str(round(percent, 2)) + "%" + "\t# Wrestlers: " + str(i * stats[i]));
+    print(".................\nTotal:\t" + str(total[0]) + "\t" + str(total[1]) + "%\t" + "# Wrestlers: " + str(total[2]));
 # Optimization Methods
 
 def optimizeByWeightAllowance(wrestlers, n, allowance):
@@ -183,6 +183,7 @@ bracketallowance = float(sys.argv[2]);
 bracketsmallmax = 0;
 errors = "Errors:";
 bracketadj = "";
+enddata = "";
 try:
     cfg = open(tourneyname + ".cfg", "r");
     config = cfg.read();
@@ -195,9 +196,13 @@ try:
 except:
     errors += "\ncannot open " + tourneyname + ".cfg";
 
+enddata += "Input > " + brackettype + " " + tourneyname + ": size: " + str(bracketsize) + ", bracketallowance: " + str(bracketallowance *100) + "%, smallest bracket size: " + str(bracketsmallmax)
+
 try:
     file = open(tourneyname + ".ovr", "r");
     bracketadj = file.read();
+    adjdata = bracketadj.split("\n",1)[1];
+    enddata += "\nOverride file:\n" + adjdata[0:len(adjdata)-1];
 except:
     errors += "\ncannot open " + tourneyname + ".ovr";
 wrestlers = [];
@@ -219,7 +224,7 @@ try:
 except:
     errors += "\ncannot open " + tourneyname + ".csv";
 
+print(enddata);
 if errors == "Errors:":
     errors += " None"
-print(brackettype + " " + tourneyname + ": size: " + str(bracketsize) + ", bracketallowance: " + str(bracketallowance *100) + "%, smallest bracket size: " + str(bracketsmallmax));
 print(errors);
