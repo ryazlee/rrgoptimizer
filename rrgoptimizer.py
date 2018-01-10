@@ -154,7 +154,11 @@ def makeAdjustments(groups, txt):
                     wrestlerindex += 1;
                 groupindex += 1;
             groups[group2][wrestler2], groups[group1][wrestler1] = groups[group1][wrestler1], groups[group2][wrestler2]
-    
+        if "OVERRIDE" in commands[0]:
+            for group in groups:
+                for wrestler in group:
+                    if wrestler.id == commands[1]:
+                        wrestler.weight = float(commands[2]); 
     printGroups(groups);
     return groups;
 
