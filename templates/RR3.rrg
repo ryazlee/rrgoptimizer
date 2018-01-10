@@ -1,0 +1,14 @@
+//Bracket
+BRACKETNAME::
+//Wrestler List
+W1:WRESTLER1:0:
+W2:WRESTLER2:0:
+W3:WRESTLER3:0:
+//Matches
+R1MA:W2:W3:
+R2MB:W1:W3:
+R3MC:W1:W2:
+//Final Places
+1: :
+2: :
+3: :

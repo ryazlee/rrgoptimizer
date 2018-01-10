@@ -9,6 +9,7 @@ class wrestler:
         self.fname = fname;
         self.lname = lname;
         self.weight = weight;
+        self.abname = self.fname + " " + self.lname;
 
     def __str__(self):
         return "Wrestler " + str(self.id) + ": " + self.fname + " " + self.lname + " " + str(self.weight);
@@ -159,8 +160,41 @@ def makeAdjustments(groups, txt):
                 for wrestler in group:
                     if wrestler.id == commands[1]:
                         wrestler.weight = float(commands[2]); 
-    printGroups(groups);
+    #printGroups(groups);
     return groups;
+
+
+# Execution Functions
+def createRRGs(groups, templates):
+    index = 0;
+    for group in groups:
+        index += 1;
+        temp = templates[len(group)];
+        found = False;
+        for i in range(len(group), 50):
+            if templates[i] != 0:
+                if found == False and len(group) <= i:
+                    temp = templates[i];
+                    found = True;
+         
+        if (len(group) == 8):
+            temp = temp.replace("WRESTLER1", group[6].abname);
+            temp = temp.replace("WRESTLER2", group[7].abname);
+            temp = temp.replace("WRESTLER3", group[0].abname);
+            temp = temp.replace("WRESTLER4", group[1].abname);
+            temp = temp.replace("WRESTLER5", group[2].abname);
+            temp = temp.replace("WRESTLER6", group[3].abname);
+            temp = temp.replace("WRESTLER7", group[4].abname);
+            temp = temp.replace("WRESTLER8", group[5].abname);
+        else:
+            for i in range(0, len(group)):
+                temp = temp.replace("WRESTLER" + str(i+1), group[i].abname);
+        strindex = str(index);
+        if index < 10:
+            strindex = "0" + str(index);
+        fh = open("RRGs/GROUP" + strindex + ".txt", "w+");
+        fh.write(temp);
+        fh.close();
 
 # Executable Code
 
@@ -188,6 +222,9 @@ bracketsmallmax = 0;
 errors = "Errors:";
 bracketadj = "";
 enddata = "";
+templates = [];
+for i in range(0, 50):
+    templates.append(0);
 try:
     cfg = open(tourneyname + ".cfg", "r");
     config = cfg.read();
@@ -197,6 +234,11 @@ try:
         if param[0] == "brackettype": brackettype = param[1];
         elif param[0] == "bracketsize": bracketsize = int(param[1]);
         elif param[0] == "bracketsmallmax": bracketsmallmax = int(param[1]); 
+        elif param[0] == "usebracket":
+            num = int(param[1][2:]);
+            templatefile = open("templates/" + param[1] + ".rrg");
+            template = templatefile.read();
+            templates[num] = template;
 except:
     errors += "\ncannot open " + tourneyname + ".cfg";
 
@@ -224,6 +266,7 @@ try:
     wrestlers = sortByWeight(wrestlers);
     op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
     op = makeAdjustments(op, bracketadj);
+    printGroups(op);
     printStats(op);
 except:
     errors += "\ncannot open " + tourneyname + ".csv";
@@ -232,3 +275,4 @@ print(enddata);
 if errors == "Errors:":
     errors += " None"
 print(errors);
+createRRGs(op, templates);
