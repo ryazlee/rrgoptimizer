@@ -1,0 +1,14 @@
+//Bracket
+BRACKETNAME::
+//Wrestler List
+W1:CHEYENNE ARNOLD (WEST):0:
+W2:ALEX LEGENHAUSEN (GUNN):0:
+W3:CY MATHEWS (PALM):0:
+//Matches
+R1MA:W2:W3:
+R2MB:W1:W3:
+R3MC:W1:W2:
+//Final Places
+1: :
+2: :
+3: :

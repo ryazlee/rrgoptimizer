@@ -1,0 +1,12 @@
+//Bracket
+BRACKETNAME::
+//Wrestler List
+W1:ANDY MALTZ (GUNN):0:
+W2:LEO MUNOZ (SEA):0:
+//Matches
+R1MA:W1:W2:
+R2MB:W1:W2:
+R3MC:W1:W2:
+//Final Places
+1: :
+2: :

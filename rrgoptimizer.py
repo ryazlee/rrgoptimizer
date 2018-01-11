@@ -4,12 +4,13 @@ import sys
 from random import *
 
 class wrestler:
-    def __init__(self, id, fname, lname, weight):
+    def __init__(self, id, fname, lname, school,  weight):
         self.id = id;
         self.fname = fname;
         self.lname = lname;
+        self.school = school;
         self.weight = weight;
-        self.abname = self.fname + " " + self.lname;
+        self.abname = self.fname + " " + self.lname + "(" + self.school +")";
 
     def __str__(self):
         return "Wrestler " + str(self.id) + ": " + self.fname + " " + self.lname + " " + str(self.weight);
@@ -67,7 +68,7 @@ def printStats(groups):
         stats[len(group)] += 1;
     for i in range(0, len(stats)):
         if stats[i] != 0:
-            percent = stats[i]/len(groups)* 100;
+            percent = float(stats[i]*100)/len(groups);
             total[0] += stats[i];
             total[1] += percent;
             total[2] += i * stats[i];
@@ -137,7 +138,7 @@ def makeAdjustments(groups, txt):
                 groups.append(keepgroup);
                 groups.remove(removegroup);
             groups = sortGroupsByWeight(groups);
-        if "SWAP" in commands[0]:
+        elif "SWAP" in commands[0]:
             groupindex = 0; 
             group1 = 0;
             wrestler1 = 0;
@@ -155,17 +156,26 @@ def makeAdjustments(groups, txt):
                     wrestlerindex += 1;
                 groupindex += 1;
             groups[group2][wrestler2], groups[group1][wrestler1] = groups[group1][wrestler1], groups[group2][wrestler2]
-        if "OVERRIDE" in commands[0]:
+        elif "OVERRIDE" in commands[0]:
             for group in groups:
                 for wrestler in group:
                     if wrestler.id == commands[1]:
                         wrestler.weight = float(commands[2]); 
+        elif "REMOVE" in commands[0]:
+            groupindex = 0;
+            wrestlerindex = 0;
+            for g in range(0, len(groups)):
+                for w in range(0, len(groups[g])):
+                    if groups[g][w].id == commands[1]:
+                        groupindex = g;
+                        wrestlerindex = w;
+            groups[groupindex].pop(wrestlerindex);
     #printGroups(groups);
     return groups;
 
 
 # Execution Functions
-def createRRGs(groups, templates):
+def createRRGs(groups, templates, errors):
     index = 0;
     for group in groups:
         index += 1;
@@ -186,15 +196,19 @@ def createRRGs(groups, templates):
             temp = temp.replace("WRESTLER6", group[3].abname);
             temp = temp.replace("WRESTLER7", group[4].abname);
             temp = temp.replace("WRESTLER8", group[5].abname);
+        elif len(group) == 1:
+            errors += "\nGroup " + str(index) + " is a one man group, did not create the rrg file";
         else:
             for i in range(0, len(group)):
                 temp = temp.replace("WRESTLER" + str(i+1), group[i].abname);
         strindex = str(index);
         if index < 10:
             strindex = "0" + str(index);
-        fh = open("RRGs/GROUP" + strindex + ".txt", "w+");
-        fh.write(temp);
-        fh.close();
+        if len(group) != 1:
+            fh = open("RRGs/GROUP" + strindex + ".txt", "w+");
+            fh.write(temp);
+            fh.close();
+    return errors;
 
 # Executable Code
 
@@ -261,7 +275,7 @@ try:
     for line in range(0,len(lines) -1):
         index += 1;
         elems = lines[line].split(",");
-        w = wrestler(str(index), elems[0], elems[1], float(elems[2]));
+        w = wrestler(str(index), elems[0], "", elems[1], float(elems[2]));
         wrestlers.append(w);
     wrestlers = sortByWeight(wrestlers);
     op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
@@ -272,7 +286,7 @@ except:
     errors += "\ncannot open " + tourneyname + ".csv";
 
 print(enddata);
+errors = createRRGs(op, templates, errors);
 if errors == "Errors:":
     errors += " None"
 print(errors);
-createRRGs(op, templates);
