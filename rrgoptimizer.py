@@ -202,7 +202,7 @@ def createRRGs(groups, templates, errors):
             for i in range(0, len(group)):
                 temp = temp.replace("WRESTLER" + str(i+1), group[i].abname);
             for i in range(0, 50):
-                temp = temp.replace("WRESTLER" + str(i+1), "Bye");
+                temp = temp.replace("WRESTLER" + str(i+1), "BYE (BYE)");
         strindex = str(index);
         if index < 10:
             strindex = "0" + str(index);
@@ -234,6 +234,7 @@ tourneyname = sys.argv[1];
 brackettype = "";
 bracketsize = 0;
 bracketallowance = float(sys.argv[2]);
+writeRRGs = sys.argv[3];
 bracketsmallmax = 0;
 errors = "Errors:";
 bracketadj = "";
@@ -288,7 +289,7 @@ except:
     errors += "\ncannot open " + tourneyname + ".csv";
 
 print(enddata);
-errors = createRRGs(op, templates, errors);
+if writeRRGs == "w": errors = createRRGs(op, templates, errors);
 if errors == "Errors:":
     errors += " None"
 print(errors);
