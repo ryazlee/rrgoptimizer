@@ -201,6 +201,8 @@ def createRRGs(groups, templates, errors):
         else:
             for i in range(0, len(group)):
                 temp = temp.replace("WRESTLER" + str(i+1), group[i].abname);
+            for i in range(0, 50):
+                temp = temp.replace("WRESTLER" + str(i+1), "Bye");
         strindex = str(index);
         if index < 10:
             strindex = "0" + str(index);
