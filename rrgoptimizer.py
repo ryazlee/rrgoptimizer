@@ -210,6 +210,7 @@ def createRRGs(groups, templates, errors):
             fh = open("RRGs/GROUP" + strindex + ".txt", "w+");
             fh.write(temp);
             fh.close();
+        else: index -= 1; 
     return errors;
 
 # Executable Code
