@@ -4,6 +4,7 @@ import sys
 from random import *
 import os;
 
+# Wrestler object.  Contains the data for a wrestler.
 class wrestler:
     def __init__(self, id, fname, lname, school,  weight):
         self.start = False;
@@ -19,6 +20,7 @@ class wrestler:
 
 # Helper Methods
 
+# Prints the wrestlers in each group.  Will flag any group that is less than 3 wrestlers
 def printGroups(groups):
     count = 0;
     for group in groups:
@@ -36,6 +38,7 @@ def printGroups(groups):
         for wrestler in group:
             print("\t" + str(wrestler));
 
+# Gets the heaviest wrestler for the group
 def getMaxWeight(group):
     max = group[0].weight;
     for wrestler in group:
@@ -43,6 +46,7 @@ def getMaxWeight(group):
             max = wrestler.weight;
     return max;
 
+# Gets the lightest wrestler for the group
 def getMinWeight(group):
     min = 10000;
     for wrestler in group:
@@ -50,17 +54,20 @@ def getMinWeight(group):
             min = wrestler.weight;
     return min;
 
+# Sorts the list of wrestlers by weight given list of wrestlers
 def sortByWeight(wrestlers):
     wrestlers.sort(key=lambda x: x.weight, reverse=False);
     sortedArr = sorted(wrestlers, key=lambda x: x.weight, reverse=False);
     return sortedArr;
 
+# Sorts the groups by weight given list of groups
 def sortGroupsByWeight(groups):
     groups.sort(key=lambda x: getMaxWeight(x), reverse=False);
     sortedArr = sorted(groups, key=lambda x: getMaxWeight(x), reverse=False);
     return sortedArr;
 
-def printStats(groups):
+# Prints the stats of the a list of groups.  Shows the amount of each size group and total
+def printStats(groups, errors):
     print("\nStats:")
     stats = [];
     total = [];
@@ -68,7 +75,11 @@ def printStats(groups):
         total.append(0);
     for i in range(0, 500):
         stats.append(0);
+    index = 0;
     for group in groups:
+        index += 1;
+        if len(group) == 1:
+            errors += "\nBracket " + str(index) + " is a one man group, fix this before writing to RRG file";
         stats[len(group)] += 1;
     for i in range(0, len(stats)):
         if stats[i] != 0:
@@ -78,8 +89,11 @@ def printStats(groups):
             total[2] += i * stats[i];
             print("Size " + str(i) + ":\t" + str(stats[i]) + "\t" + str(round(percent, 2)) + "%" + "\t# Wrestlers: " + str(i * stats[i]));
     print(".................\nTotal:\t" + str(total[0]) + "\t" + str(total[1]) + "%\t" + "# Wrestlers: " + str(total[2]));
+    return errors;
+
 # Optimization Methods
 
+# Given a list of wrestlers, creates groups of size n using the allowance.  returns the list of groups.
 def optimizeByWeightAllowance(wrestlers, n, allowance):
     groups = [];
     group = [];
@@ -100,7 +114,8 @@ def optimizeByWeightAllowance(wrestlers, n, allowance):
             count = 1;
     groups.append(group);
     return groups;
-            
+
+# Very basic, just creates groups of size n without using allowance.  will most likely not use this command
 def createGroupsBySize(wrestlers, n):
     ret = [];
     temp = [];
@@ -118,6 +133,7 @@ def createGroupsBySize(wrestlers, n):
         ret.append(temp);
     return ret;        
 
+# Performs the commands from the .ovr file on the wrestlers list.  These commands are "START" "OVERRIDE" and "REMOVE"
 def makePreAdjustments(wrestlers, txt):
     lines = txt.split("\n");
     for line in lines[1:len(lines)-1]:
@@ -139,6 +155,7 @@ def makePreAdjustments(wrestlers, txt):
     #printGroups(groups);
     return wrestlers;
 
+# Performs the commands from the .ovr file on the wrestlers list.  These commands are "SWAP""
 def makePostAdjustments(groups, txt):
     lines = txt.split("\n");
     for line in lines[1:len(lines)-1]:
@@ -164,34 +181,40 @@ def makePostAdjustments(groups, txt):
     return groups;
 
 # Execution Functions
+
+# Writes RRGs to the /RRGs folder.  Also adds to error message if there are any errors
 def createRRGs(groups, templates, errors):
+    canrun = True;
+    for group in groups:
+        if len(group) == 1: canrun = False;
     os.system("cd RRGs/\nrm *");
     index = 0;
-    for group in groups:
-        index += 1;
-        temp = templates[len(group)];
-        found = False;
-        for i in range(len(group), 50):
-            if templates[i] != 0:
-                if found == False and len(group) <= i:
-                    temp = templates[i];
-                    found = True; 
-        if len(group) == 1:
-            errors += "\nBracket " + str(index) + " is a one man group, fix this before writing to RRG file";
-        for i in range(0, len(group)):
-            temp = temp.replace("WRESTLER" + str(i+1), group[len(group) - i - 1].abname);
-        for i in range(0, 50):
-            temp = temp.replace("WRESTLER" + str(i+1), "BYE (BYE)");
-        strindex = str(index);
-        if index < 10:
-            strindex = "0" + str(index);
-        fh = open("RRGs/BR" + strindex + ".txt", "w+");
-        fh.write(temp);
-        fh.close();
+    if canrun == True:
+        for group in groups:
+            index += 1;
+            temp = templates[len(group)];
+            found = False;
+            for i in range(len(group), 50):
+                if templates[i] != 0:
+                    if found == False and len(group) <= i:
+                        temp = templates[i];
+                        found = True; 
+            for i in range(0, len(group)):
+                temp = temp.replace("WRESTLER" + str(i+1), group[len(group) - i - 1].abname);
+            for i in range(0, 50):
+                temp = temp.replace("WRESTLER" + str(i+1), "BYE (BYE)");
+            strindex = str(index);
+            if index < 10:
+                strindex = "0" + str(index);
+            fh = open("RRGs/BR" + strindex + ".txt", "w+");
+            fh.write(temp);
+            fh.close();
+    else: errors += "\nRRGs were not created";
     return errors;
 
 # Executable Code
 
+# Parameters for Tournament Execution.  Most are taken from the command line input/.cfg file.  bracketsmallmax is not in use.
 tourneyname = sys.argv[1];
 brackettype = "";
 bracketsize = 0;
@@ -204,8 +227,17 @@ enddata = "";
 templates = [];
 for i in range(0, 50):
     templates.append(0);
+
+# Open the configuration file
+configopened = True;
 try:
     cfg = open(tourneyname + ".cfg", "r");
+except:
+    errors += "\ncannot open " + tourneyname + ".cfg";
+    configopened = False;
+
+# Sets the execution parameters for the tournament
+if configopened == True:
     config = cfg.read();
     lines = config.split("\n");
     for line in range(0,len(lines) -1):
@@ -218,12 +250,12 @@ try:
             templatefile = open("templates/" + param[1] + ".rrg");
             template = templatefile.read();
             templates[num] = template;
-except:
-    errors += "\ncannot open " + tourneyname + ".cfg";
 
 if writeRRGs != "w": prwrite = "editting";
 else: prwrite = "writing";
 enddata += "Input > " + brackettype + " " + tourneyname + ": size: " + str(bracketsize) + ", bracketallowance: " + str(bracketallowance *100) + "%, smallest bracket size: " + str(bracketsmallmax) + ", action: " + prwrite;
+
+# Open the .ovr file.  If it doesn't exist, the output will say it can't find the file but the program will still run
 
 try:
     file = open(tourneyname + ".ovr", "r");
@@ -236,8 +268,15 @@ wrestlers = [];
 
 op = [];
 
+csvopened = True;
+
 try:
     csv = open(tourneyname + ".csv");
+except:
+     errors += "\ncannot open " + tourneyname + ".csv";
+     csvopened = False;
+
+if csvopened == True:
     data = csv.read();
     lines = data.split("\n");
     index = 0;
@@ -250,10 +289,8 @@ try:
     wrestlers = sortByWeight(wrestlers);
     op = optimizeByWeightAllowance(wrestlers, bracketsize, bracketallowance);
     op = makePostAdjustments(op, bracketadj);
-except:
-     errors += "\ncannot open " + tourneyname + ".csv";
 printGroups(op);
-printStats(op);
+errors = printStats(op, errors);
 
 print(enddata);
 if writeRRGs == "w": errors = createRRGs(op, templates, errors);
