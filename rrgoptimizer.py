@@ -101,6 +101,8 @@ def optimizeByWeightAllowance(wrestlers, n, allowance):
     maxweight = 0;
     for wrestler in wrestlers:
         if count == 0 or wrestler.start == True:
+            if wrestler.start == True and group != []:
+                 groups.append(group);
             maxweight = wrestler.weight * (1 + allowance);
             group = [wrestler];
             count += 1;
