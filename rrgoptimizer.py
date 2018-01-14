@@ -115,24 +115,6 @@ def optimizeByWeightAllowance(wrestlers, n, allowance):
     groups.append(group);
     return groups;
 
-# Very basic, just creates groups of size n without using allowance.  will most likely not use this command
-def createGroupsBySize(wrestlers, n):
-    ret = [];
-    temp = [];
-    count = 0;
-    for wrestler in wrestlers:
-        if count == n-1:
-            temp.append(wrestler);
-            ret.append(temp);
-            temp = [];
-            count = 0;
-        else:
-            temp.append(wrestler);
-            count += 1;
-    if temp != []:
-        ret.append(temp);
-    return ret;        
-
 # Performs the commands from the .ovr file on the wrestlers list.  These commands are "START" "OVERRIDE" and "REMOVE"
 def makePreAdjustments(wrestlers, txt):
     lines = txt.split("\n");
@@ -152,7 +134,6 @@ def makePreAdjustments(wrestlers, txt):
                 if wrestlers[i].id == commands[1]:
                     wrestlerindex = i;
             wrestlers.pop(wrestlerindex);
-    #printGroups(groups);
     return wrestlers;
 
 # Performs the commands from the .ovr file on the wrestlers list.  These commands are "SWAP""
@@ -187,9 +168,9 @@ def createRRGs(groups, templates, errors):
     canrun = True;
     for group in groups:
         if len(group) == 1: canrun = False;
-    os.system("cd RRGs/\nrm *");
     index = 0;
     if canrun == True:
+        os.system("cd RRGs/\nrm *");
         for group in groups:
             index += 1;
             temp = templates[len(group)];
@@ -209,7 +190,7 @@ def createRRGs(groups, templates, errors):
             fh = open("RRGs/BR" + strindex + ".txt", "w+");
             fh.write(temp);
             fh.close();
-    else: errors += "\nRRGs were not created";
+    else: errors += "\nRRGs were not created because there is a one man group";
     return errors;
 
 # Executable Code
@@ -225,7 +206,7 @@ errors = "Errors:";
 bracketadj = "";
 enddata = "";
 templates = [];
-for i in range(0, 50):
+for i in range(0, 256):
     templates.append(0);
 
 # Open the configuration file
@@ -284,6 +265,7 @@ if csvopened == True:
         index += 1;
         elems = lines[line].split(",");
         w = wrestler(str(index), elems[0], "", elems[1], float(elems[2]));
+        #w = wrestler(str(index), elems[0], elems[1], elems[2], float(elems[3]));
         wrestlers.append(w);
     wrestlers = makePreAdjustments(wrestlers, bracketadj);
     wrestlers = sortByWeight(wrestlers);
