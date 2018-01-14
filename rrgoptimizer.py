@@ -102,7 +102,8 @@ def optimizeByWeightAllowance(wrestlers, n, allowance):
     for wrestler in wrestlers:
         if count == 0 or wrestler.start == True:
             if wrestler.start == True and group != []:
-                 groups.append(group);
+                groups.append(group);
+                count = 0;
             maxweight = wrestler.weight * (1 + allowance);
             group = [wrestler];
             count += 1;
@@ -175,6 +176,9 @@ def createRRGs(groups, templates, errors):
         os.system("cd RRGs/\nrm *");
         for group in groups:
             index += 1;
+            if index < 10:
+                printstr = "0" + str(index);
+            else: printstr = str(index);
             temp = templates[len(group)];
             found = False;
             for i in range(len(group), 50):
@@ -187,6 +191,7 @@ def createRRGs(groups, templates, errors):
             for i in range(0, 50):
                 temp = temp.replace("WRESTLER" + str(i+1), "BYE (BYE)");
             strindex = str(index);
+            temp = temp.replace("::", ":BR" + printstr + ":");
             if index < 10:
                 strindex = "0" + str(index);
             fh = open("RRGs/BR" + strindex + ".txt", "w+");
