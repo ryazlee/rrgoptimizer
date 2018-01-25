@@ -34,6 +34,10 @@ def printGroups(groups):
             size = "********************************************* Bracket Size of " + str(size);
         else: 
             size = str(size);
+        for i in range(0, len(group)-1):
+            for j in range(i + 1, len(group)):
+                if group[i].school == group[j].school:
+                    print("********************************************* " + str(group[i]) + " and " + str(group[j]) + " are in the same bracket!");
         print("Bracket " + str(count) + " Max weight: " + str(groupMaxWeight) + "\tSize: " + size);
         for wrestler in group:
             print("\t" + str(wrestler));
