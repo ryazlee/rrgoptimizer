@@ -34,11 +34,29 @@ def printGroups(groups):
             size = "********************************************* Bracket Size of " + str(size);
         else: 
             size = str(size);
+        
+        print("Bracket " + str(count) + " Max weight: " + str(groupMaxWeight) + "\tSize: " + size);
+        
+        firsthalf = [0, 3, 4, 7];
+        secondhalf = [1, 2, 5, 6];
+
+# Testing if two wrestlers from same school are wrestling one another.
+
+        if len(group) == 8:
+            for i in range(0, len(firsthalf)-1):
+                for j in range(i+1, len(firsthalf)):
+                    if group[firsthalf[i]].school == group[firsthalf[j]].school:
+                        print("********************************************* " + str(group[firsthalf[i]]) + " and " + str(group[firsthalf[j]]) + " are in the first half of the bracket!");
+            for i in range(0, len(secondhalf)-1):
+                for j in range(i+1, len(secondhalf)):
+                    if group[secondhalf[i]].school == group[secondhalf[j]].school:
+                        print("********************************************* " + str(group[secondhalf[i]]) + " and " + str(group[secondhalf[j]]) + " are in the second half of the bracket!"); 
+
         for i in range(0, len(group)-1):
             for j in range(i + 1, len(group)):
                 if group[i].school == group[j].school:
                     print("********************************************* " + str(group[i]) + " and " + str(group[j]) + " are in the same bracket!");
-        print("Bracket " + str(count) + " Max weight: " + str(groupMaxWeight) + "\tSize: " + size);
+
         for wrestler in group:
             print("\t" + str(wrestler));
 
